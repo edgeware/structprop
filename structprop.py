@@ -82,7 +82,7 @@ class Lexer:
             elif state == 'comment':
                 if ch == '\n':
                     self.line = self.line + 1
-                    state = 'newline'
+                    state = 'whitespace'
             elif state == 'term':
                 if ch in ('#', '\n', ' ', '\t'):
                     #print "YIELD", term

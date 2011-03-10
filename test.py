@@ -28,6 +28,9 @@ class ParserTestCase(unittest.TestCase):
         result = loads("a { key = value }")
         self.assertEquals(result['a']['key'], 'value')
 
+    def test_comment_before_data(self):
+        result = loads(u"#xxx\na { key = value }")
+        self.assertEquals(result['a']['key'], 'value')
 
 if __name__ == '__main__':
     unittest.main()
