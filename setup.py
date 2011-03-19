@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='structprop',
-      version='0.0.1',
+      version='0.0.2',
       description='Parser for structured property config file format',
       author='Johan Rydberg',
       author_email='johan.rydberg@gmail.com',
