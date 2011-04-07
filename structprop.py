@@ -197,10 +197,35 @@ def loads(data):
         data = unicode(data, 'utf-8')
     return _parse(data)
 
+_ESCAPE_CHARACTERS = ' \t'
+
+
+def _escape(k):
+    for ch in _ESCAPE_CHARACTERS:
+        if ch in k:
+            return '"%s"' % (k,)
+    return k
+
 
 def dumps(data):
     """Dump configuration data to a string.
 
     @rtype: C{str}
     """
-    raise NotImplementedError
+    def _dump(d, indent=0):
+        for key, value in d.iteritems():
+            if type(value) == dict:
+                yield '%s%s {\n' % (' ' * indent, _escape(key))
+                for subs in _dump(value, indent + 2):
+                    yield subs
+                yield '%s}\n' % (' ' * indent)
+            elif type(value) == list:
+                yield '%s%s = {\n' % (' ' * indent, _escape(key))
+                for subvalue in value:
+                    yield '%s%s\n' % (' ' * (indent + 2),
+                                      _escape(subvalue))
+                yield '%s}\n' % (' ' * indent)
+            else:
+                yield '%s%s = %s\n' % (' ' * indent, _escape(key),
+                                       _escape(str(value)))
+    return '{\n%s}\n' % (''.join(list(_dump(data, 2))))

@@ -1,5 +1,5 @@
 import unittest
-from structprop import loads
+from structprop import loads, dumps
 
 
 class ParserTestCase(unittest.TestCase):
@@ -31,6 +31,36 @@ class ParserTestCase(unittest.TestCase):
     def test_comment_before_data(self):
         result = loads(u"#xxx\na { key = value }")
         self.assertEquals(result['a']['key'], 'value')
+
+    def test_dump_list(self):
+        data = dumps({'a': ['a', 'b', 'c']})
+        self.assertEquals(data, """\
+{
+  a = {
+    a
+    b
+    c
+  }
+}
+""")
+
+    def test_dump_dict(self):
+        data = dumps({'a': {'d': 1}})
+        self.assertEquals(data, """\
+{
+  a {
+    d = 1
+  }
+}
+""")
+
+    def test_escape_space(self):
+        data = dumps({'a b': 1})
+        self.assertEquals(data, """\
+{
+  "a b" = 1
+}
+""")
 
 if __name__ == '__main__':
     unittest.main()
