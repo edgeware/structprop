@@ -228,4 +228,4 @@ def dumps(data):
             else:
                 yield '%s%s = %s\n' % (' ' * indent, _escape(key),
                                        _escape(str(value)))
-    return '{\n%s}\n' % (''.join(list(_dump(data, 2))))
+    return ''.join(list(_dump(data)))

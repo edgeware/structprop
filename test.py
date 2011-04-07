@@ -35,31 +35,27 @@ class ParserTestCase(unittest.TestCase):
     def test_dump_list(self):
         data = dumps({'a': ['a', 'b', 'c']})
         self.assertEquals(data, """\
-{
-  a = {
-    a
-    b
-    c
-  }
+a = {
+  a
+  b
+  c
 }
 """)
 
     def test_dump_dict(self):
         data = dumps({'a': {'d': 1}})
+        loads(data)
         self.assertEquals(data, """\
-{
-  a {
-    d = 1
-  }
+a {
+  d = 1
 }
 """)
 
     def test_escape_space(self):
         data = dumps({'a b': 1})
+        loads(data)
         self.assertEquals(data, """\
-{
-  "a b" = 1
-}
+"a b" = 1
 """)
 
 if __name__ == '__main__':
