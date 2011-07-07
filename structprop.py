@@ -142,11 +142,11 @@ def _parse(s, handler):
             raise SyntaxError("term expected", token)
         _key = token
         token = next()
-        if _key.startswith('-') and token is not EQ \
+        if _key.startswith('!') and token is not EQ \
                 and token is not OPEN \
                 and token is not CLOSE:
             if handler:
-                obj.update(handler(token))
+                obj.update(handler(_key, token, 'object'))
         elif token is EQ:
             token = next()
             obj[_key] = value(obj, next, token)
@@ -157,7 +157,7 @@ def _parse(s, handler):
                 token = assignlist(subobj, next, token)
             obj[_key] = subobj
         else:
-            raise ParserError("expected '=' or '{' got %r" % token)
+            raise ParserError("expected '=' or '{' got '%s'" % token)
         return token
 
     def assignlist(obj, next, token):
@@ -172,7 +172,24 @@ def _parse(s, handler):
             token = next()
             _value = []
             while token is not CLOSE:
-                _value.append(token)
+                if token is OPEN:
+                    obj = {}
+                    while True:
+                        token = next()
+                        if token is CLOSE:
+                            break
+                        assign(obj, next, token)
+                    _value.append(obj)
+                elif token.startswith('!'):
+                    key = token
+                    token = next()
+                    if token is CLOSE:
+                        raise ParserError(
+                            "expected token, got '}'")
+                    _value.extend(handler(key, token,
+                                          'value'))
+                else:
+                    _value.append(token)
                 token = next()
             return _value
         if not isinstance(token, basestring):

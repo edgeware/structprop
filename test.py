@@ -2,7 +2,9 @@ import unittest
 from structprop import loads, dumps
 
 
-def handler(token):
+def handler(stmt, token, context):
+    if context == 'value':
+        return [token + '.value']
     return {token: 'augmented'}
 
 
@@ -16,10 +18,14 @@ class ParserTestCase(unittest.TestCase):
         result = loads('key = value  #comment')
         self.assertEquals(result['key'], 'value')
 
-    def test_augment(self):
-        result = loads('-include foo  #comment', handler)
+    def test_augment_object(self):
+        result = loads('!include foo  #comment', handler)
         self.assertTrue('foo' in result)
         self.assertEquals(result['foo'], 'augmented')
+
+    def test_augment_value(self):
+        result = loads('a = { !include foo }', handler)
+        self.assertTrue(u'foo.value' in result['a'])
 
     def test_quoted_value(self):
         result = loads('key = "a#comment{}=#"')
@@ -40,6 +46,13 @@ class ParserTestCase(unittest.TestCase):
     def test_comment_before_data(self):
         result = loads(u"#xxx\na { key = value }")
         self.assertEquals(result['a']['key'], 'value')
+
+    def test_nested_objects(self):
+        result = loads(u"a = { { b = c } { d = e } def abc }")
+        self.assertEquals(len(result), 1)
+        self.assertEquals(len(result['a']), 4)
+        self.assertEquals(result['a'][2], 'def')
+        self.assertEquals(result['a'][3], 'abc')
 
     def test_dump_list(self):
         data = dumps({'a': ['a', 'b', 'c']})
