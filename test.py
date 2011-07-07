@@ -2,6 +2,10 @@ import unittest
 from structprop import loads, dumps
 
 
+def handler(token):
+    return {token: 'augmented'}
+
+
 class ParserTestCase(unittest.TestCase):
 
     def test_key_value(self):
@@ -11,6 +15,11 @@ class ParserTestCase(unittest.TestCase):
     def test_inline_comment(self):
         result = loads('key = value  #comment')
         self.assertEquals(result['key'], 'value')
+
+    def test_augment(self):
+        result = loads('-include foo  #comment', handler)
+        self.assertTrue('foo' in result)
+        self.assertEquals(result['foo'], 'augmented')
 
     def test_quoted_value(self):
         result = loads('key = "a#comment{}=#"')

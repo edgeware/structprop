@@ -115,7 +115,7 @@ class ParserError(Exception):
     """Parser error."""
 
 
-def _parse(s):
+def _parse(s, handler):
     """Simple configuration parser."""
     # Our syntax:
     #
@@ -142,7 +142,12 @@ def _parse(s):
             raise SyntaxError("term expected", token)
         _key = token
         token = next()
-        if token is EQ:
+        if _key.startswith('-') and token is not EQ \
+                and token is not OPEN \
+                and token is not CLOSE:
+            if handler:
+                obj.update(handler(token))
+        elif token is EQ:
             token = next()
             obj[_key] = value(obj, next, token)
         elif token is OPEN:
@@ -187,15 +192,19 @@ def _parse(s):
     return result
 
 
-def loads(data):
+def loads(data, handler=None):
     """Load configuration data from C{data}.
+
+    @param handler: callable or C{None} that will be invoked for
+       augmenting an object.  The handler will be passed a term
+       that was provided.  The handler must return a C{dict}.
 
     @return: The configuration data
     @rtype: C{dict}
     """
     if not isinstance(data, unicode):
         data = unicode(data, 'utf-8')
-    return _parse(data)
+    return _parse(data, handler)
 
 _ESCAPE_CHARACTERS = ' \t'
 
