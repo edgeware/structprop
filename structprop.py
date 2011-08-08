@@ -248,8 +248,16 @@ def dumps(data):
             elif type(value) == list:
                 yield '%s%s = {\n' % (' ' * indent, _escape(key))
                 for subvalue in value:
-                    yield '%s%s\n' % (' ' * (indent + 2),
-                                      _escape(subvalue))
+                    if type(subvalue) == dict:
+                        yield '%s{\n' % (' ' * (indent + 2))
+                        for subs in _dump(subvalue, indent + 4):
+                            yield subs
+                        yield '%s}\n' % (' ' * (indent + 2))
+                    else:
+                        yield '%s%s\n' % (' ' * (indent + 2),
+                                          _escape(subvalue))
+
+
                 yield '%s}\n' % (' ' * indent)
             else:
                 yield '%s%s = %s\n' % (' ' * indent, _escape(key),
