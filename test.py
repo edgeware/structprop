@@ -1,5 +1,5 @@
 import unittest
-from structprop import loads, dumps
+from structprop import loads, dumps, ParserError
 
 
 def handler(stmt, token, context):
@@ -9,6 +9,9 @@ def handler(stmt, token, context):
 
 
 class ParserTestCase(unittest.TestCase):
+
+    def test_parser_error_on_missing_term(self):
+        self.assertRaises(ParserError, loads, '{ = 10')
 
     def test_key_value(self):
         result = loads('key = value')

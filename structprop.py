@@ -139,7 +139,7 @@ def _parse(s, handler):
 
     def assign(obj, next, token):
         if not isinstance(token, basestring):
-            raise SyntaxError("term expected", token)
+            raise ParserError("term expected, got '%s'" % token)
         _key = token
         token = next()
         if _key.startswith('!') and token is not EQ \
