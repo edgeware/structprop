@@ -257,7 +257,6 @@ def dumps(data):
                         yield '%s%s\n' % (' ' * (indent + 2),
                                           _escape(subvalue))
 
-
                 yield '%s}\n' % (' ' * indent)
             else:
                 yield '%s%s = %s\n' % (' ' * indent, _escape(key),
