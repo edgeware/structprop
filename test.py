@@ -57,6 +57,14 @@ class ParserTestCase(unittest.TestCase):
         self.assertEquals(result['a'][2], 'def')
         self.assertEquals(result['a'][3], 'abc')
 
+    def test_true_bool(self):
+        result = loads('a = true')
+        self.assertTrue(result['a'])
+
+    def test_false_bool(self):
+        result = loads('a = false')
+        self.assertFalse(result['a'])
+
     def test_dump_list(self):
         data = dumps({'a': ['a', 'b', 'c']})
         self.assertEquals(data, """\
@@ -74,6 +82,20 @@ a = {
 a {
   d = 1
 }
+""")
+
+    def test_dump_true_bool(self):
+        data = dumps({'a': True})
+        loads(data)
+        self.assertEquals(data, """\
+a = true
+""")
+
+    def test_dump_false_bool(self):
+        data = dumps({'a': False})
+        loads(data)
+        self.assertEquals(data, """\
+a = false
 """)
 
     def test_escape_space(self):

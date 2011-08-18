@@ -258,6 +258,9 @@ def dumps(data):
                                           _escape(subvalue))
 
                 yield '%s}\n' % (' ' * indent)
+            elif type(value) == bool:
+                yield '%s%s = %s\n' % (' ' * indent, _escape(key),
+                                       _escape(str(value).lower()))
             else:
                 yield '%s%s = %s\n' % (' ' * indent, _escape(key),
                                        _escape(str(value)))
