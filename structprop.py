@@ -62,23 +62,11 @@ class Lexer:
                     state = 'term'
             elif state == 'quoted':
                 if ch == '"':
-                    if not escape:
-                        yield ''.join(term)
-                        del term[:]
-                        state = 'whitespace'
-                        continue
-                elif ch == '\\':
-                    escape = True
-                else:
-                    if escape:
-                        if ch == 'n':
-                            term.append('\n')
-                        elif ch == 'r':
-                            term.append('\r')
-                        elif ch == 't':
-                            term.append('\t')
-                    else:
-                        term.append(ch)
+                    yield ''.join(term)
+                    del term[:]
+                    state = 'whitespace'
+                    continue
+                term.append(ch)
             elif state == 'comment':
                 if ch == '\n':
                     self.line = self.line + 1
