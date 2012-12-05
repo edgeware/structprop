@@ -28,13 +28,27 @@ be broken up onto several lines:
     abc
   }
 
-The data can be structued into objects (think of it as a hash-map) by
-adding a {}-pair after the key.  The content of the object is key-value
-pairs or other objects.
+The '=' character is optional, so this is also a valid array:
+
+  key { 1 2 abc }
+
+The data can be structued into objects (think of it as a hash-map).
+Objects are much like lists except the content is key-value pairs
+or other named objects.
 
   name {
     key = value
     what = foo
+    obj {
+      who = bar
+    }
+  }
+
+Arrays may also contain unnamed objects:
+
+  stuff = {
+    { foo = bar }
+    { hey = you }
   }
 
 Keys and values are regular strings that can contain any characters
