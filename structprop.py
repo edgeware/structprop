@@ -107,93 +107,106 @@ def _parse(s, handler):
     """Simple configuration parser."""
     # Our syntax:
     #
-    # program: stmts
+    # document: named [document]
     #
-    # stmts: assignlist
+    # named: STRING ['='] collection | STRING '=' STRING
     #
-    # assign: STRING '=' value
-    #   | STRING '{' assignlist '}'
+    # collection: '{' named* '}' | '{' simple* '}'
     #
-    # assignlist: assignlist prop
-    #   | assign
+    # simple: STRING | collection
     #
-    # value: STRING
-    #   | '{' STRING* '}'
-    #
-    def stmts(obj, next, token):
-        """Process statements until EOF."""
+    def document(obj, next, token):
+        named_list = []
         while token is not EOF:
-            token = assignlist(obj, next, token)
+            named(named_list, next, token)
+            obj.update(named_list)
+            token = next()
 
-    def assign(obj, next, token):
-        if not isinstance(token, basestring):
-            raise ParserError("term expected, got '%s'" % token)
-        _key = token
-        token = next()
-        if _key.startswith('!') and token is not EQ \
-                and token is not OPEN \
-                and token is not CLOSE:
-            if handler:
-                obj.update(handler(_key, token, 'object'))
-        elif token is EQ:
-            token = next()
-            obj[_key] = value(obj, next, token)
-        elif token is OPEN:
-            token = next()
-            subobj = {}
-            while token is not CLOSE:
-                token = assignlist(subobj, next, token)
-            obj[_key] = subobj
-        else:
-            raise ParserError("expected '=' or '{' got '%s'" % token)
-        return token
-
-    def assignlist(obj, next, token):
-        while True:
-            assign(obj, next, token)
-            token = next()
-            if type(token) != str:
-                return token
-
-    def value(obj, next, token):
-        if token is OPEN:
-            token = next()
-            _value = []
-            while token is not CLOSE:
-                if token is OPEN:
-                    obj = {}
-                    while True:
-                        token = next()
-                        if token is CLOSE:
-                            break
-                        assign(obj, next, token)
-                    _value.append(obj)
-                elif token.startswith('!'):
-                    key = token
-                    token = next()
-                    if token is CLOSE:
-                        raise ParserError(
-                            "expected token, got '}'")
-                    _value.extend(handler(key, token,
-                                          'value'))
-                else:
-                    _value.append(token)
-                token = next()
-            return _value
-        if not isinstance(token, basestring):
-            raise ParserError("expected string token, got %r" % token)
+    def value(token):
         try:
             return json.loads(token)
         except ValueError:
             return token
+
+    def named(obj, next, token):
+        if not isinstance(token, basestring):
+            raise ParserError("term expected, got '%s'" % token)
+
+        _key = token
+        token = next()
+        if isinstance(token, basestring) and _key.startswith('!'):
+            if handler:
+                obj.extend(handler(_key, token, 'object').items())
+            return token
+        elif token is EQ:
+            token = next()
+            if isinstance(token, basestring):
+                obj.append((_key, value(token)))
+                return token
+        subobj = []
+        token = collection(subobj, next, token)
+
+        # If subobj consists of (k, v) tuples, it's translated into a dict
+        if all(isinstance(item, tuple) for item in subobj):
+            obj.append((_key, dict(subobj)))
+        else:
+            obj.append((_key, subobj))
+        return token
+
+    def collection(obj, next, token):
+        if token is not OPEN:
+            raise ParserError("'{' expected, got %s" % token)
+        token = next()
+        if token is CLOSE:
+            return token
+
+        lookahead_token = None
+        collection_item = named
+        if token is OPEN:
+            collection_item = simple
+        elif not isinstance(token, basestring):
+            raise ParserError("term expected, got '%s'" % token)
+        if collection_item is named:
+            lookahead_token = next()
+            if (isinstance(lookahead_token, basestring)):
+                collection_item = simple
+
+        def next_token():
+            if lookahead_token is not None:
+                yield lookahead_token
+            while True:
+                yield next()
+
+        next_token = next_token().next
+        while token != CLOSE:
+            collection_item(obj, next_token, token)
+            token = next_token()
+        return token
+
+    def simple(obj, next, token):
+        if isinstance(token, basestring):
+            if token.startswith('!'):
+                _key = token
+                token = next()
+                if token is CLOSE:
+                    raise ParserError(
+                        "expected token, got '}'")
+                obj.extend(handler(_key, token, 'value'))
+            else:
+                obj.append(value(token))
+            return token
+        subobj = []
+        token = collection(subobj, next, token)
+        obj.append(subobj)
+        return token
 
     lexer = Lexer()
     tokenizer = lexer.tokenize(s)
     next = tokenizer.next
     token = next()
     result = {}
+    document(result, next, token)
 
-    stmts(result, next, token)
     return result
 
 

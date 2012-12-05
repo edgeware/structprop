@@ -44,7 +44,11 @@ class ParserTestCase(unittest.TestCase):
 
     def test_object_key_value(self):
         result = loads("a { key = value }")
-        self.assertEquals(result['a']['key'], 'value')
+        self.assertEquals(result, {'a': {'key': 'value'}})
+
+    def test_object_key_value_optional_assign(self):
+        result = loads("a = { key = value }")
+        self.assertEquals(result, {'a': {'key': 'value'}})
 
     def test_comment_before_data(self):
         result = loads(u"#xxx\na { key = value }")
@@ -56,6 +60,10 @@ class ParserTestCase(unittest.TestCase):
         self.assertEquals(len(result['a']), 4)
         self.assertEquals(result['a'][2], 'def')
         self.assertEquals(result['a'][3], 'abc')
+
+    def test_list_optional_assign(self):
+        result = loads(u"a { abc def }")
+        self.assertEquals(result, {'a': ['abc', 'def']})
 
     def test_true_bool(self):
         result = loads('a = true')
@@ -81,6 +89,17 @@ a = {
         self.assertEquals(data, """\
 a {
   d = 1
+}
+""")
+
+    def test_dump_list_dict(self):
+        data = dumps({'a': [{'b': 1}]})
+        loads(data)
+        self.assertEquals(data, """\
+a = {
+  {
+    b = 1
+  }
 }
 """)
 
