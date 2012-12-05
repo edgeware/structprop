@@ -1,5 +1,6 @@
 # Copyright (C) 2011 by Edgeware AB.
-# Written by Johan Rydberg <johan.rydberg@gmail.com>
+# Written by Johan Rydberg <johan.rydberg@gmail.com>,
+#            Mikael Langer <mikael.langer@gmail.com>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
