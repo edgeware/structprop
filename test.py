@@ -1,3 +1,4 @@
+import random
 import unittest
 from structprop import loads, dumps, ParserError
 
@@ -104,6 +105,18 @@ a = false
         self.assertEquals(data, """\
 "a b" = 1
 """)
+
+    def test_object_order_is_kept(self):
+        """Verify that the items in objects are kept in order."""
+        order = random.sample(range(100), 100)
+        string = "\n".join("property%d = %d" % (i, i) for i in order)
+
+        result = loads(string)
+        for (key, value), i in zip(result.items(), order):
+            self.assertEquals(value, i)
+
+        new_string = dumps(result)
+        self.assertEquals(string, str(new_string).rstrip())
 
 if __name__ == '__main__':
     unittest.main()

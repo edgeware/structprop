@@ -20,6 +20,19 @@
 
 
 import json
+import sys
+
+# Try to find an implementation of OrderedDict
+if sys.version_info >= (2, 7):
+    from collections import OrderedDict
+else:
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        # Fall back to ordinary dicts if all else fails. This means
+        # that the order of elements in an object will not be preserved.
+        OrderedDict = dict
+        print ("Warning: no OrderedDict implementation found.")
 
 
 NEWLINE = (u'NEWLINE',)
@@ -140,7 +153,7 @@ def _parse(s, handler):
             obj[_key] = value(obj, next, token)
         elif token is OPEN:
             token = next()
-            subobj = {}
+            subobj = OrderedDict()
             while token is not CLOSE:
                 token = assignlist(subobj, next, token)
             obj[_key] = subobj
@@ -191,7 +204,7 @@ def _parse(s, handler):
     tokenizer = lexer.tokenize(s)
     next = tokenizer.next
     token = next()
-    result = {}
+    result = OrderedDict()
 
     stmts(result, next, token)
     return result
@@ -228,12 +241,12 @@ def dumps(data):
     """
     def _dump(d, indent=0):
         for key, value in d.iteritems():
-            if type(value) == dict:
+            if isinstance(value, dict):
                 yield '%s%s {\n' % (' ' * indent, _escape(key))
                 for subs in _dump(value, indent + 2):
                     yield subs
                 yield '%s}\n' % (' ' * indent)
-            elif type(value) == list:
+            elif isinstance(value, list):
                 yield '%s%s = {\n' % (' ' * indent, _escape(key))
                 for subvalue in value:
                     if type(subvalue) == dict:
