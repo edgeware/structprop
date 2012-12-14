@@ -21,10 +21,19 @@
 
 import json
 import sys
+
+# Try to find an implementation of OrderedDict
 if sys.version_info >= (2, 7):
     from collections import OrderedDict
 else:
-    from ordereddict import OrderedDict
+    try:
+        from ordereddict import OrderedDict
+    except ImportError:
+        # Fall back to ordinary dicts if all else fails. This means
+        # that the order of elements in an object will not be preserved.
+        OrderedDict = dict
+        print ("Warning: no OrderedDict implementation found.")
+
 
 NEWLINE = (u'NEWLINE',)
 EQ = (u'EQ',)
