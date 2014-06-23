@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='structprop',
-      version='0.0.6',
+      version='0.0.8',
       description='Parser for structured property config file format',
-      author='Johan Rydberg',
-      author_email='johan.rydberg@gmail.com',
-      license="MIT",
-      py_modules=['structprop'],
+      author='Edgeware AB',
+      author_email='info@edgeware.tv',
+      license='MIT',
+      scripts=['structprop.py'],
       classifiers=[
-        'Intended Audience :: Developers',
-        'Topic :: Software Development'
-        ]
-      )
+          'Intended Audience :: Developers',
+          'Topic :: Software Development'
+      ])
