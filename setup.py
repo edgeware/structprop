@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(name='structprop',
       version='0.0.8',
@@ -8,7 +6,8 @@ setup(name='structprop',
       author='Edgeware AB',
       author_email='info@edgeware.tv',
       license='MIT',
-      scripts=['structprop.py'],
+      packages=find_packages(),
+      test_suite='structprop.test',
       classifiers=[
           'Intended Audience :: Developers',
           'Topic :: Software Development'
