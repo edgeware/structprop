@@ -20,19 +20,12 @@
 
 
 import json
-import sys
 
-# Try to find an implementation of OrderedDict
-if sys.version_info >= (2, 7):
+try:
+    # Python 2.7+
     from collections import OrderedDict
-else:
-    try:
-        from ordereddict import OrderedDict
-    except ImportError:
-        # Fall back to ordinary dicts if all else fails. This means
-        # that the order of elements in an object will not be preserved.
-        OrderedDict = dict
-        print ("Warning: no OrderedDict implementation found.")
+except ImportError:
+    from ordereddict import OrderedDict
 
 
 NEWLINE = (u'NEWLINE',)
