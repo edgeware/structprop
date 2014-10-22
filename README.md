@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/edgeware/structprop.svg?branch=master)](https://travis-ci.org/edgeware/structprop)
+
 Configuration file parser for a somewhat structures properties file
 format. (The syntax borrows a lot from [1])
 
