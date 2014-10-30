@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/edgeware/structprop.svg?branch=master)](https://travis-ci.org/edgeware/structprop)
 
 Configuration file parser for a somewhat structures properties file
-format. (The syntax borrows a lot from [1])
+format. (The syntax borrows a lot from [matjam/StructuredProperties](https://github.com/matjam/StructuredProperties))
 
 The parser is designed to be as small and simple as possible.
 
@@ -45,7 +45,7 @@ provided that the string is not double-quoted.
 
     key = "a value with a space in it"
 
-The python module contains two functions: `loads` and `dumps`. `loads"
+The python module contains two functions: `loads` and `dumps`. `loads`
 parses a string into a python dictionary. `dumps` writes a structprop
 representation of a python dictionary as a string.
 
@@ -65,6 +65,3 @@ Example:
     }
 
     tables = { Table1 Table2 }
-
-
-[1] https://github.com/matjam/StructuredProperties
