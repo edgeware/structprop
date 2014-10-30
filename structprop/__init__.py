@@ -45,13 +45,11 @@ class Lexer:
         state = 'whitespace'
         self.line = 1
         term = []
-        escape = False
         for ch in s:
             if state == 'whitespace':
                 if ch == '#':
                     state = 'comment'
                 elif ch == '"':
-                    escape = False
                     state = 'quoted'
                 elif ch == ' ' or ch == '\t':
                     pass
@@ -79,7 +77,6 @@ class Lexer:
                     state = 'whitespace'
             elif state == 'term':
                 if ch in ('#', '\n', ' ', '\t'):
-                    #print "YIELD", term
                     yield ''.join(term).strip()
                     del term[:]
                     if ch == '#':
