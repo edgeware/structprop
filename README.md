@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/edgeware/structprop.svg?branch=master)](https://travis-ci.org/edgeware/structprop)
 
-Configuration file parser for a somewhat structures properties file
+Configuration file parser for a somewhat structured properties file
 format. (The syntax borrows a lot from [matjam/StructuredProperties](https://github.com/matjam/StructuredProperties))
 
 The parser is designed to be as small and simple as possible.
