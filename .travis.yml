@@ -10,3 +10,5 @@ install:
 script:
     - make check
     - make test
+
+sudo: false
