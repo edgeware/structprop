@@ -118,5 +118,6 @@ a = false
         new_string = dumps(result)
         self.assertEquals(string, str(new_string).rstrip())
 
+
 if __name__ == '__main__':
     unittest.main()

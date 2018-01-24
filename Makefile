@@ -1,10 +1,7 @@
 all:
 
 test:
-	python setup.py test
-
-check:
-	pep8 structprop
+	tox
 
 clean:
-	rm -rf *.egg-info
+	$(RM) -r *.egg-info build
