@@ -214,6 +214,7 @@ def loads(data, handler=None):
         data = unicode(data, 'utf-8')
     return _parse(data, handler)
 
+
 _ESCAPE_CHARACTERS = ' \t'
 
 
