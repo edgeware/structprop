@@ -8,7 +8,7 @@ if sys.version_info < (2, 7):
     install_requires.append('ordereddict')
 
 setup(name='structprop',
-      version='0.0.9',
+      version='0.0.10',
       description='Parser for structured property config file format',
       author='Edgeware AB',
       author_email='info@edgeware.tv',
