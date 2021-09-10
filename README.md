@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/edgeware/structprop.svg?branch=master)](https://travis-ci.org/edgeware/structprop)
+[![Build Status](https://github.com/edgeware/structprop/workflows/Python/badge.svg)](https://github.com/edgeware/structprop/actions)
 
 Configuration file parser for a somewhat structured properties file
 format. (The syntax borrows a lot from [matjam/StructuredProperties](https://github.com/matjam/StructuredProperties))
