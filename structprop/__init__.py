@@ -18,15 +18,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 
-
+from collections import OrderedDict
 import json
 
-try:
-    # Python 2.7+
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
-
+import six
 
 NEWLINE = (u'NEWLINE',)
 EQ = (u'EQ',)
@@ -129,7 +124,7 @@ def _parse(s, handler):
             token = assignlist(obj, next, token)
 
     def assign(obj, next, token):
-        if not isinstance(token, basestring):
+        if not isinstance(token, six.string_types):
             raise ParserError("term expected, got '%s'" % token)
         _key = token
         token = next()
@@ -183,7 +178,7 @@ def _parse(s, handler):
                     _value.append(token)
                 token = next()
             return _value
-        if not isinstance(token, basestring):
+        if not isinstance(token, six.string_types):
             raise ParserError("expected string token, got %r" % token)
         try:
             return json.loads(token)
@@ -192,11 +187,14 @@ def _parse(s, handler):
 
     lexer = Lexer()
     tokenizer = lexer.tokenize(s)
-    next = tokenizer.next
-    token = next()
+
+    def pop_token():
+        return next(tokenizer)
+
+    token = pop_token()
     result = OrderedDict()
 
-    stmts(result, next, token)
+    stmts(result, pop_token, token)
     return result
 
 
@@ -210,8 +208,8 @@ def loads(data, handler=None):
     @return: The configuration data
     @rtype: C{dict}
     """
-    if not isinstance(data, unicode):
-        data = unicode(data, 'utf-8')
+    if not isinstance(data, six.text_type):
+        data = six.text_type(data, 'utf-8')
     return _parse(data, handler)
 
 
@@ -231,7 +229,7 @@ def dumps(data):
     @rtype: C{str}
     """
     def _dump(d, indent=0):
-        for key, value in d.iteritems():
+        for key, value in six.iteritems(d):
             if isinstance(value, dict):
                 yield '%s%s {\n' % (' ' * indent, _escape(key))
                 for subs in _dump(value, indent + 2):

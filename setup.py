@@ -1,11 +1,4 @@
-import sys
-
 from setuptools import setup, find_packages
-
-install_requires = []
-
-if sys.version_info < (2, 7):
-    install_requires.append('ordereddict')
 
 setup(name='structprop',
       version='0.0.10',
@@ -13,10 +6,8 @@ setup(name='structprop',
       author='Edgeware AB',
       author_email='info@edgeware.tv',
       license='MIT',
-      use_2to3=True,
       packages=find_packages(),
-      test_suite='structprop.test',
-      install_requires=install_requires,
+      install_requires=['six'],
       classifiers=[
           'Intended Audience :: Developers',
           'Topic :: Software Development'
