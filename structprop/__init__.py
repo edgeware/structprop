@@ -118,6 +118,15 @@ def _parse(s, handler):
     # value: STRING
     #   | '{' STRING* '}'
     #
+    def format_error_token(token):
+        mapping = {
+            CLOSE: '}',
+            OPEN: '{',
+            EQ: '=',
+            EOF: 'end of file',
+        }
+        return mapping.get(token, str(token))
+
     def stmts(obj, next, token):
         """Process statements until EOF."""
         while token is not EOF:
@@ -125,7 +134,10 @@ def _parse(s, handler):
 
     def assign(obj, next, token):
         if not isinstance(token, six.string_types):
-            raise ParserError("term expected, got '%s'" % token)
+            raise ParserError(
+                "expected a name at the start of an assignment, but got '%s'"
+                % format_error_token(token)
+            )
         _key = token
         token = next()
         if _key.startswith('!') and token is not EQ \
@@ -143,14 +155,17 @@ def _parse(s, handler):
                 token = assignlist(subobj, next, token)
             obj[_key] = subobj
         else:
-            raise ParserError("expected '=' or '{' got '%s'" % token)
+            raise ParserError(
+                "expected '=' or '{' after key '%s', but got '%s'"
+                % (_key, format_error_token(token))
+            )
         return token
 
     def assignlist(obj, next, token):
         while True:
             assign(obj, next, token)
             token = next()
-            if type(token) != str:
+            if not isinstance(token, str):
                 return token
 
     def value(obj, next, token):
@@ -166,20 +181,25 @@ def _parse(s, handler):
                             break
                         assign(obj, next, token)
                     _value.append(obj)
-                elif token.startswith('!'):
+                elif (isinstance(token, six.string_types)
+                        and token.startswith('!')):
                     key = token
                     token = next()
                     if token is CLOSE:
                         raise ParserError(
-                            "expected token, got '}'")
-                    _value.extend(handler(key, token,
-                                          'value'))
+                            "expected a value, but the list closed with '%s'"
+                            % format_error_token(token)
+                        )
+                    _value.extend(handler(key, token, 'value'))
                 else:
                     _value.append(token)
                 token = next()
             return _value
         if not isinstance(token, six.string_types):
-            raise ParserError("expected string token, got %r" % token)
+            raise ParserError(
+                "expected a string or number value, but got '%s'"
+                % format_error_token(token)
+            )
         try:
             return json.loads(token)
         except ValueError:
@@ -189,13 +209,29 @@ def _parse(s, handler):
     tokenizer = lexer.tokenize(s)
 
     def pop_token():
-        return next(tokenizer)
+        try:
+            return next(tokenizer)
+        except StopIteration:
+            raise ParserError(
+                "reached end of file unexpectedly "
+                "— check for a missing closing '}'"
+            )
 
-    token = pop_token()
-    result = OrderedDict()
-
-    stmts(result, pop_token, token)
-    return result
+    try:
+        token = pop_token()
+        result = OrderedDict()
+        stmts(result, pop_token, token)
+        return result
+    except ParserError as e:
+        lines = s.splitlines()
+        offending_line = (
+            lines[lexer.line - 1].strip()
+            if 0 < lexer.line <= len(lines) else ""
+        )
+        context = "(context: '%s')" % offending_line if offending_line else ""
+        raise ParserError(
+            "parse error on line %d: %s %s" % (lexer.line, e, context)
+        ) from e
 
 
 def loads(data, handler=None):
@@ -238,7 +274,7 @@ def dumps(data):
             elif isinstance(value, list):
                 yield '%s%s = {\n' % (' ' * indent, _escape(key))
                 for subvalue in value:
-                    if type(subvalue) == dict:
+                    if isinstance(subvalue, dict):
                         yield '%s{\n' % (' ' * (indent + 2))
                         for subs in _dump(subvalue, indent + 4):
                             yield subs
@@ -248,7 +284,7 @@ def dumps(data):
                                           _escape(subvalue))
 
                 yield '%s}\n' % (' ' * indent)
-            elif type(value) == bool:
+            elif isinstance(value, bool):
                 yield '%s%s = %s\n' % (' ' * indent, _escape(key),
                                        _escape(str(value).lower()))
             else:
