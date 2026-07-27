@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='structprop',
-      version='0.0.11',
+      version='0.0.12',
       description='Parser for structured property config file format',
       author='Edgeware AB',
       author_email='info@edgeware.tv',
